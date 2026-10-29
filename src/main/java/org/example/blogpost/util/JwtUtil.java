@@ -69,6 +69,10 @@ public class JwtUtil {
         return extractClaims(token).get("role", String.class);
     }
 
+    public String extractJti(String token) {
+        return extractClaims(token).getId();
+    }
+
     // Kiểm tra token còn hạn không
     public boolean isTokenValid(String token) {
         try {
@@ -93,4 +97,14 @@ public class JwtUtil {
     public boolean isRefreshToken(String token) {
         return isTokenValid(token) && "refresh".equals(extractClaims(token).get("type", String.class));
     }
+
+    private boolean hasType(String token, String type) {
+        try {
+            return type.equals(extractClaims(token).get("type", String.class));
+        } catch (Exception e) {
+            log.debug("Invalid JWT token: {}", e.getMessage());
+            return false;
+        }
+    }
+
 }

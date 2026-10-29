@@ -47,6 +47,15 @@ public class AuthController {
                 .build();
     }
 
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader,@RequestBody @Valid RefreshTokenRequest request){
+        String accessToken = authHeader.substring(7);
+        authService.logout(accessToken, request.getRefreshToken());
+        return ApiResponse.<Void>builder()
+                .message("Logout successfilly")
+                .build();
+    }
+
     @GetMapping("/me")
     public ApiResponse<UserResponse> getMe(@AuthenticationPrincipal CustomUserDetails principal) {
         return ApiResponse.<UserResponse>builder()
