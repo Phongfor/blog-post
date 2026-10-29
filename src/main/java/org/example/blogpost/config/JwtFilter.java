@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private void authenticate(String token, HttpServletRequest request) {
-        if (jwtUtil.isAccessToken(token)) {
+        if (!jwtUtil.isAccessToken(token)) {
             return;
         }
         try{

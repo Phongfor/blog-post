@@ -21,9 +21,11 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(1203, "Email or password is incorrect", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN(1204, "Invalid or expired token", HttpStatus.UNAUTHORIZED),
     USERNAME_ALREADY_EXISTS(1103, "Username already exists", HttpStatus.CONFLICT),
-    ACCOUNT_DISABLED(1205, "Account is disabled", HttpStatus.FORBIDDEN),;
+    ACCOUNT_DISABLED(1205, "Account is disabled", HttpStatus.FORBIDDEN),
 
-
+    //POST MODULE
+    POST_NOT_FOUND(2001, "Post not found", HttpStatus.NOT_FOUND),
+    NOT_POST_OWNER(2002, "You are not the owner of this post", HttpStatus.FORBIDDEN);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
