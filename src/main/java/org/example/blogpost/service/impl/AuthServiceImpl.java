@@ -15,6 +15,8 @@ import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.repositories.UserRepository;
 import org.example.blogpost.service.AuthService;
+import org.example.blogpost.service.RedisService;
+import org.example.blogpost.service.TokenBlacklistService;
 import org.example.blogpost.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,8 @@ public class AuthServiceImpl implements AuthService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
-//    RedisService redisService;
+    RedisService redisService;
+    TokenBlacklistService tokenBlacklistService;
 
     @Override
     public void register(RegisterRequest request) {
@@ -85,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        if (!jwtUtil.isRefreshToken(refreshToken)) {
+        if (!jwtUtil.isRefreshToken(refreshToken) || tokenBlacklistService.isBlacklisted(refreshToken)) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
@@ -124,15 +127,25 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-//    @Override
-//    public void logout(String accessToken) {
-//        if (!jwtUtil.isTokenValid(accessToken)) {
-//            throw new AppException(ErrorCode.INVALID_TOKEN);
-//        }
-//        long ttl = jwtUtil.getExpirationTime(accessToken);
-//        redisService.set("blacklist:" + accessToken, "true", ttl);
-//        log.info("User logged out, token blacklisted");
-//    }
+    @Override
+    public void logout(String accessToken, String refreshToken) {
+        if (!jwtUtil.isAccessToken(accessToken)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        // Refresh token đi kèm: phải cùng chủ với access token thì mới thu hồi.
+        // Nếu nó đã hết hạn hoặc sai chữ ký thì vốn đã vô hiệu, bỏ qua.
+        if (jwtUtil.isTokenValid(refreshToken)) {
+            if (!jwtUtil.isRefreshToken(refreshToken)
+                    || !jwtUtil.extractEmail(refreshToken).equals(jwtUtil.extractEmail(accessToken))) {
+                throw new AppException(ErrorCode.INVALID_TOKEN);
+            }
+            tokenBlacklistService.blacklist(refreshToken);
+        }
+
+        tokenBlacklistService.blacklist(accessToken);
+        log.info("User logged out: {}", jwtUtil.extractEmail(accessToken));
+    }
 
 
 }
