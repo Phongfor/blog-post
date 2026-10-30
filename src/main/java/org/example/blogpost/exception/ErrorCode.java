@@ -10,6 +10,8 @@ public enum ErrorCode {
     // SYSTEM
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    VALIDATION_ERROR(1003, "Validation error", HttpStatus.BAD_REQUEST),
+
     // USER MODULE
     USER_NOT_FOUND(1101, "User not found", HttpStatus.NOT_FOUND),
     USER_ALREADY_EXISTS(1102, "User already exists", HttpStatus.CONFLICT),

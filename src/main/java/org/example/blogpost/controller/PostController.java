@@ -32,13 +32,6 @@ public class PostController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<PageResponse<PostResponse>> getPosts(@RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.<PageResponse<PostResponse>>builder()
-                .result(postService.getPosts(page, size))
-                .build();
-    }
 
     @GetMapping("/{id}")
     public ApiResponse<PostResponse> getPost(@PathVariable Long id) {
@@ -63,6 +56,17 @@ public class PostController {
         postService.deletePost(id, principal.getId());
         return ApiResponse.<Void>builder()
                 .message("Post deleted successfully")
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<PageResponse<PostResponse>> getPosts(@RequestParam(required = false) String title,
+                                                            @RequestParam(required = false) String author,
+                                                            @RequestParam(defaultValue = "newest") String sort,
+                                                            @RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<PostResponse>>builder()
+                .result(postService.searchPosts(title, author, sort, page, size))
                 .build();
     }
 }
