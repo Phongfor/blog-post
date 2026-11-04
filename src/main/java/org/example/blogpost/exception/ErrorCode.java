@@ -9,8 +9,10 @@ public enum ErrorCode {
 
     // SYSTEM
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-
     VALIDATION_ERROR(1003, "Validation error", HttpStatus.BAD_REQUEST),
+    METHOD_NOT_ALLOWED(1004, "Method not allowed", HttpStatus.METHOD_NOT_ALLOWED),
+    RESOURCE_NOT_FOUND(1005, "Resource not found", HttpStatus.NOT_FOUND),
+    UNSUPPORTED_MEDIA_TYPE(1006, "Unsupported media type", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
 
     // USER MODULE
     USER_NOT_FOUND(1101, "User not found", HttpStatus.NOT_FOUND),
