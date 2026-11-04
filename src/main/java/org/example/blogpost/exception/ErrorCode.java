@@ -27,7 +27,12 @@ public enum ErrorCode {
 
     //POST MODULE
     POST_NOT_FOUND(2001, "Post not found", HttpStatus.NOT_FOUND),
-    NOT_POST_OWNER(2002, "You are not the owner of this post", HttpStatus.FORBIDDEN);
+    NOT_POST_OWNER(2002, "You are not the owner of this post", HttpStatus.FORBIDDEN),
+    POST_IMAGE_NOT_FOUND(2003, "Post image not found", HttpStatus.NOT_FOUND),
+    INVALID_IMAGE_FILE(2004, "Only JPG, PNG or WEBP images are allowed", HttpStatus.BAD_REQUEST),
+    TOO_MANY_IMAGES(2005, "Too many images for this post", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(2006, "File too large (max 5MB per image, 20MB per request)", HttpStatus.PAYLOAD_TOO_LARGE),
+    FILE_STORAGE_ERROR(2007, "Could not store file", HttpStatus.INTERNAL_SERVER_ERROR),;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

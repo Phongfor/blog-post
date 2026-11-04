@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.blogpost.entities.Post;
-import org.example.blogpost.entities.PostImage;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +19,7 @@ public class PostResponse {
     private String title;
     private String content;
     private AuthorResponse author;
-    private List<String> images;
+    private List<PostImageResponse> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -33,7 +32,7 @@ public class PostResponse {
                         .id(post.getAuthor().getId())
                         .username(post.getAuthor().getUsername())
                         .build())
-                .images(post.getImages().stream().map(PostImage::getFileUrl).toList())
+                .images(post.getImages().stream().map(PostImageResponse::from).toList())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
