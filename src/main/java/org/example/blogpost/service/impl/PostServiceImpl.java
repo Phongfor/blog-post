@@ -8,11 +8,13 @@ import org.example.blogpost.dto.request.PostRequest;
 import org.example.blogpost.dto.response.PageResponse;
 import org.example.blogpost.dto.response.PostResponse;
 import org.example.blogpost.entities.Post;
+import org.example.blogpost.entities.PostImage;
 import org.example.blogpost.entities.User;
 import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.repositories.PostRepository;
 import org.example.blogpost.repositories.UserRepository;
+import org.example.blogpost.service.FileStorageService;
 import org.example.blogpost.service.PostService;
 import org.example.blogpost.specification.PostSpecification;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class PostServiceImpl implements PostService {
 
     PostRepository postRepository;
     UserRepository userRepository;
+    FileStorageService fileStorageService;
 
     @Override
     @Transactional
@@ -95,7 +100,11 @@ public class PostServiceImpl implements PostService {
         Post post = findPostOrThrow(postId);
         checkOwner(post, currentUserId);
 
+        // Lấy tên file trước khi xóa; xóa file thật sau khi commit thành công
+        List<String> fileNames = post.getImages().stream().map(PostImage::getFileName).toList();
+
         postRepository.delete(post);
+        fileStorageService.deleteAfterCommit(FileStorageService.POSTS_FOLDER, fileNames);
         log.info("Post deleted: id={}, by userId={}", postId, currentUserId);
     }
 
