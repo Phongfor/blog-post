@@ -6,6 +6,7 @@ import java.util.Collection;
 
 public interface FileStorageService {
     String POSTS_FOLDER = "posts";
+    String COMMENTS_FOLDER = "comments";
 
     record StoredFile(String fileName, String fileUrl){
     }
