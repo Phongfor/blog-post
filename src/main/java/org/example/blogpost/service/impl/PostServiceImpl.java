@@ -12,6 +12,7 @@ import org.example.blogpost.entities.PostImage;
 import org.example.blogpost.entities.User;
 import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
+import org.example.blogpost.repositories.CommentRepository;
 import org.example.blogpost.repositories.PostRepository;
 import org.example.blogpost.repositories.UserRepository;
 import org.example.blogpost.service.FileStorageService;
@@ -37,6 +38,7 @@ public class PostServiceImpl implements PostService {
     PostRepository postRepository;
     UserRepository userRepository;
     FileStorageService fileStorageService;
+    CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -62,14 +64,12 @@ public class PostServiceImpl implements PostService {
 
         Pageable pageable = PageRequest.of(safePage, safeSize, buildSort(sort));
 
-        // Ghép các điều kiện lọc; param nào trống thì tự bỏ qua
         Specification<Post> spec = PostSpecification.titleContains(title)
                 .and(PostSpecification.withAuthor(author));
 
         return PageResponse.from(postRepository.findAll(spec, pageable).map(PostResponse::from));
     }
 
-    // Whitelist kiểu sắp xếp, luôn thêm id để thứ tự ổn định khi phân trang
     private Sort buildSort(String sort) {
         String key = (sort == null || sort.isBlank()) ? "newest" : sort.trim().toLowerCase();
         return switch (key) {
@@ -100,11 +100,12 @@ public class PostServiceImpl implements PostService {
         Post post = findPostOrThrow(postId);
         checkOwner(post, currentUserId);
 
-        // Lấy tên file trước khi xóa; xóa file thật sau khi commit thành công
         List<String> fileNames = post.getImages().stream().map(PostImage::getFileName).toList();
+        List<String> commentFileNames = commentRepository.findImageFileNamesByPostId(postId);
 
         postRepository.delete(post);
         fileStorageService.deleteAfterCommit(FileStorageService.POSTS_FOLDER, fileNames);
+        fileStorageService.deleteAfterCommit(FileStorageService.COMMENTS_FOLDER, commentFileNames);
         log.info("Post deleted: id={}, by userId={}", postId, currentUserId);
     }
 

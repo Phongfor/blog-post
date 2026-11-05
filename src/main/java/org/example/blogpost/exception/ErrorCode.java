@@ -34,7 +34,14 @@ public enum ErrorCode {
     INVALID_IMAGE_FILE(2004, "Only JPG, PNG or WEBP images are allowed", HttpStatus.BAD_REQUEST),
     TOO_MANY_IMAGES(2005, "Too many images for this post", HttpStatus.BAD_REQUEST),
     FILE_TOO_LARGE(2006, "File too large (max 5MB per image, 20MB per request)", HttpStatus.PAYLOAD_TOO_LARGE),
-    FILE_STORAGE_ERROR(2007, "Could not store file", HttpStatus.INTERNAL_SERVER_ERROR),;
+    FILE_STORAGE_ERROR(2007, "Could not store file", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // Comment
+    COMMENT_NOT_FOUND(3001, "Comment not found", HttpStatus.NOT_FOUND),
+    NOT_COMMENT_OWNER(3002, "You are not the owner of this comment", HttpStatus.FORBIDDEN),
+    COMMENT_EMPTY(3003, "Comment must have content or at least one image", HttpStatus.BAD_REQUEST),
+    TOO_MANY_COMMENT_IMAGES(3004, "A comment can have at most 3 images", HttpStatus.BAD_REQUEST),
+    COMMENT_CONTENT_TOO_LONG(3005, "Comment content must not exceed 5000 characters", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
