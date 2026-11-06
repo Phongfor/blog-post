@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/refresh","/api/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**","/uploads/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

@@ -2,6 +2,7 @@ package org.example.blogpost.config;
 
 import lombok.Getter;
 import org.example.blogpost.entities.User;
+import org.example.blogpost.enums.Role;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -32,4 +33,8 @@ public class CustomUserDetails implements UserDetails {
     @Override public boolean isAccountNonLocked()                        { return true; }
     @Override public boolean isCredentialsNonExpired()                   { return true; }
     @Override public boolean isEnabled()                                 { return enabled; }
+    public boolean isAdmin() {
+        return authorities.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + Role.ADMIN.name()));
+    }
 }

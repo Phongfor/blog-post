@@ -122,10 +122,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void deleteComment(Long commentId, Long currentUserId) {
+    public void deleteComment(Long commentId, Long currentUserId, boolean isAdmin) {
         Comment comment = findCommentOrThrow(commentId);
-        // TODO bước Admin: cho phép ADMIN xóa comment của người khác
-        checkOwner(comment, currentUserId);
+
+        if (!isAdmin) {
+            checkOwner(comment, currentUserId);
+        }
 
         List<String> fileNames = comment.getImages().stream().map(CommentImage::getFileName).toList();
 
