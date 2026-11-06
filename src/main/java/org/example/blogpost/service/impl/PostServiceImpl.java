@@ -96,9 +96,11 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void deletePost(Long postId, Long currentUserId) {
+    public void deletePost(Long postId, Long currentUserId, boolean isAdmin) {
         Post post = findPostOrThrow(postId);
-        checkOwner(post, currentUserId);
+        if (!isAdmin) {
+            checkOwner(post, currentUserId);
+        }
 
         List<String> fileNames = post.getImages().stream().map(PostImage::getFileName).toList();
         List<String> commentFileNames = commentRepository.findImageFileNamesByPostId(postId);

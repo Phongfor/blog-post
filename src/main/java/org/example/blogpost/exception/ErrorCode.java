@@ -41,7 +41,10 @@ public enum ErrorCode {
     NOT_COMMENT_OWNER(3002, "You are not the owner of this comment", HttpStatus.FORBIDDEN),
     COMMENT_EMPTY(3003, "Comment must have content or at least one image", HttpStatus.BAD_REQUEST),
     TOO_MANY_COMMENT_IMAGES(3004, "A comment can have at most 3 images", HttpStatus.BAD_REQUEST),
-    COMMENT_CONTENT_TOO_LONG(3005, "Comment content must not exceed 5000 characters", HttpStatus.BAD_REQUEST);
+    COMMENT_CONTENT_TOO_LONG(3005, "Comment content must not exceed 5000 characters", HttpStatus.BAD_REQUEST),
+
+    // ADMIN MODULE
+    CANNOT_LOCK_ADMIN(4001, "Admin accounts cannot be locked", HttpStatus.FORBIDDEN);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

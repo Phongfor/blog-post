@@ -58,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 log.info(("Token is balcklisted, rejecting request"));
                 return;
             }
-           // Kiểm tra người dùng có bị khoá không, nếu có th không xác thực
+
             String email = jwtUtil.extractEmail(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             if(!userDetails.isEnabled()){

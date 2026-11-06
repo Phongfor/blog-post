@@ -53,7 +53,7 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deletePost(@AuthenticationPrincipal CustomUserDetails principal,
                                         @PathVariable Long id) {
-        postService.deletePost(id, principal.getId());
+        postService.deletePost(id, principal.getId(),principal.isAdmin());
         return ApiResponse.<Void>builder()
                 .message("Post deleted successfully")
                 .build();

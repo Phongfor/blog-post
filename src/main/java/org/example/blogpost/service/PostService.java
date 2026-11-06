@@ -9,5 +9,5 @@ public interface PostService {
     PageResponse<PostResponse> searchPosts(String title, String author, String sort, int page, int size);
     PostResponse getPost(Long postId);
     PostResponse updatePost(Long postId, Long currentUserId, PostRequest request);
-    void deletePost(Long postId, Long currentUserId);
+    void deletePost(Long postId, Long currentUserId, boolean isAdmin);
 }

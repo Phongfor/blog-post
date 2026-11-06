@@ -14,5 +14,5 @@ public interface CommentService {
 
     CommentResponse updateComment(Long commentId, Long currentUserId, String content);
 
-    void deleteComment(Long commentId, Long currentUserId);
+    void deleteComment(Long commentId, Long currentUserId, boolean isAdmin);
 }

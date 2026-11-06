@@ -65,7 +65,7 @@ public class CommentController {
     public ApiResponse<Void> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        commentService.deleteComment(commentId, principal.getId());
+        commentService.deleteComment(commentId, principal.getId(), principal.isAdmin());
         return ApiResponse.<Void>builder()
                 .message("Comment deleted successfully")
                 .build();
