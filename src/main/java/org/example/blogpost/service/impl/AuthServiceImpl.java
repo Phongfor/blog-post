@@ -15,6 +15,7 @@ import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.repositories.UserRepository;
 import org.example.blogpost.service.AuthService;
+import org.example.blogpost.service.LoginAttemptService;
 import org.example.blogpost.service.RedisService;
 import org.example.blogpost.service.TokenBlacklistService;
 import org.example.blogpost.util.JwtUtil;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     JwtUtil jwtUtil;
     RedisService redisService;
     TokenBlacklistService tokenBlacklistService;
+    LoginAttemptService loginAttemptService;
 
     @Override
     public void register(RegisterRequest request) {
@@ -56,16 +58,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request, String clientIp) {
+
+        String email = request.getEmail();
+        loginAttemptService.checkAllowed(email,clientIp);
+
         // Kiểm tra email tồn tại không
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         // Kiểm tra password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            loginAttemptService.recordFailure(email,clientIp);
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
-
 
         // Kiểm tra có bị kho tài khoản không
         if (!user.isEnabled()) {
@@ -73,7 +79,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         log.info("User logged in: {}", user.getEmail());
-
+        loginAttemptService.reset(email)
+        ;
         // Tạo token
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());

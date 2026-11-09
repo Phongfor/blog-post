@@ -7,7 +7,7 @@ import org.example.blogpost.dto.response.AuthResponse;
 import org.example.blogpost.dto.response.UserResponse;
 
 public interface AuthService {
-    AuthResponse login(LoginRequest request);
+    AuthResponse login(LoginRequest request,String clientIp);
     void register(RegisterRequest request);
     AuthResponse refreshToken(RefreshTokenRequest request);
     UserResponse getMe(Long userId);

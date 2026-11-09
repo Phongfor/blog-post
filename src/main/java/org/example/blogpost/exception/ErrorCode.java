@@ -26,6 +26,7 @@ public enum ErrorCode {
     INVALID_TOKEN(1204, "Invalid or expired token", HttpStatus.UNAUTHORIZED),
     USERNAME_ALREADY_EXISTS(1103, "Username already exists", HttpStatus.CONFLICT),
     ACCOUNT_DISABLED(1205, "Account is disabled", HttpStatus.FORBIDDEN),
+    TOO_MANY_LOGIN_ATTEMPTS(1206, "Too many failed login attempts, please try again later", HttpStatus.TOO_MANY_REQUESTS),
 
     //POST MODULE
     POST_NOT_FOUND(2001, "Post not found", HttpStatus.NOT_FOUND),

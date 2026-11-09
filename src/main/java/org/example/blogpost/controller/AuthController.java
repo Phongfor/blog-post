@@ -1,5 +1,6 @@
 package org.example.blogpost.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.example.blogpost.dto.response.ApiResponse;
 import org.example.blogpost.dto.response.AuthResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.http.HttpRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,9 +35,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+    public ApiResponse<AuthResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
         return ApiResponse.<AuthResponse>builder()
-                .result(authService.login(request))
+                .result(authService.login(request, httpRequest.getRemoteAddr()))
                 .message("Login successfully")
                 .build();
     }

@@ -35,6 +35,12 @@ spring:
       max-request-size: 20MB
 
 app:
+  rate-limit:
+    login:
+      max-attemps-per-email: 5
+      max-attemps-per-ip: 20
+      window-second: 900
+
   upload-dir: uploads
 
 jwt:
