@@ -29,6 +29,7 @@
     <properties>
         <java.version>17</java.version>
         <jjwt.version>0.12.6</jjwt.version>
+        <redisson.version>4.7.0</redisson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -109,11 +110,20 @@
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
+
         <!--        REDIS-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+        <!--        REDISSON-->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redisson.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
