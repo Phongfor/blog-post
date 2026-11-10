@@ -1,6 +1,7 @@
 package org.example.blogpost.config;
 
 import lombok.Getter;
+import org.example.blogpost.dto.cache.AuthUser;
 import org.example.blogpost.entities.User;
 import org.example.blogpost.enums.Role;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +25,15 @@ public class CustomUserDetails implements UserDetails {
         this.password    = user.getPassword();
         this.enabled     = user.isEnabled();
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+    }
+
+    // Dựng từ dữ liệu cache
+    public CustomUserDetails(AuthUser authUser) {
+        this.id          = authUser.id();
+        this.email       = authUser.email();
+        this.password    = null;
+        this.enabled     = authUser.enabled();
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + authUser.role().name()));
     }
 
     @Override public String getUsername()                                { return email; }

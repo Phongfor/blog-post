@@ -11,6 +11,7 @@ import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.repositories.UserRepository;
 import org.example.blogpost.service.AdminUserService;
+import org.example.blogpost.service.AuthUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminUserServiceImpl implements AdminUserService {
 
     UserRepository userRepository;
+    AuthUserService authUserService;
 
     @Override
     @Transactional
@@ -34,6 +36,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         user.setEnabled(false);
         User saved = userRepository.saveAndFlush(user);
+        authUserService.evict(saved.getEmail());
         log.info("User locked: userId={}, by adminId={}", userId, adminId);
         return AdminUserResponse.from(saved);
     }
@@ -44,6 +47,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         User user = findUserOrThrow(userId);
         user.setEnabled(true);
         User saved = userRepository.saveAndFlush(user);
+        authUserService.evict(saved.getEmail());
         log.info("User unlocked: userId={}, by adminId={}", userId, adminId);
         return AdminUserResponse.from(saved);
     }
