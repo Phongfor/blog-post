@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.blogpost.dto.cache.AuthUser;
+import org.example.blogpost.service.AuthUserService;
 import org.example.blogpost.service.TokenBlacklistService;
 import org.example.blogpost.util.JwtUtil;
 import org.springframework.dao.DataAccessException;
@@ -30,8 +32,8 @@ import java.util.zip.DataFormatException;
 public class JwtFilter extends OncePerRequestFilter {
 
     JwtUtil jwtUtil;
-    UserDetailsService userDetailsService;
     TokenBlacklistService tokenBlacklistService;
+    AuthUserService authUserService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -60,10 +62,12 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             String email = jwtUtil.extractEmail(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if(!userDetails.isEnabled()){
+            AuthUser authUser = authUserService.getByEmail(email);
+            if(!authUser.enabled()){
                 return;
             }
+
+            UserDetails userDetails = new CustomUserDetails(authUser);
 
             // Lấy thông tin chi tiết về người dùng
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
