@@ -21,4 +21,23 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
             "LEFT JOIN FETCH p.images " +
             "WHERE p.id = :id")
     Optional<Post> findByIdWithDetails(@Param("id") Long id);
+
+    @Query("""
+            select p.author.id as authorId,
+                   p.author.email as authorEmail,
+                   p.author.username as authorUsername,
+                   p.author.enabled as authorEnabled,
+                   p.title as title
+            from Post p
+            where p.id = :postId
+            """)
+    Optional<PostOwnerView> findOwnerViewById(@Param("postId") Long postId);
+
+    interface PostOwnerView {
+        Long getAuthorId();
+        String getAuthorEmail();
+        String getAuthorUsername();
+        Boolean getAuthorEnabled();
+        String getTitle();
+    }
 }

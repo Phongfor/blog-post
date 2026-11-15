@@ -7,12 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.blogpost.dto.response.ReactionSummaryResponse;
 import org.example.blogpost.entities.Reaction;
 import org.example.blogpost.enums.ReactionType;
+import org.example.blogpost.event.ReactionEvent;
 import org.example.blogpost.exception.AppException;
 import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.repositories.PostRepository;
 import org.example.blogpost.repositories.ReactionRepository;
 import org.example.blogpost.repositories.UserRepository;
 import org.example.blogpost.service.ReactionService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class ReactionServiceImpl implements ReactionService {
     ReactionRepository reactionRepository;
     PostRepository postRepository;
     UserRepository userRepository;
+    ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -40,7 +43,6 @@ public class ReactionServiceImpl implements ReactionService {
         ReactionType myReaction;
 
         if (existing.isEmpty()) {
-            // Chưa có → tạo mới (dùng getReferenceById để khỏi truy vấn thêm)
             Reaction reaction = Reaction.builder()
                     .post(postRepository.getReferenceById(postId))
                     .user(userRepository.getReferenceById(userId))
@@ -49,16 +51,17 @@ public class ReactionServiceImpl implements ReactionService {
             reactionRepository.save(reaction);
             myReaction = type;
             log.info("Reaction created: postId={}, userId={}, type={}", postId, userId, type);
+            // Báo chủ bài (gửi Kafka sau khi commit)
+            eventPublisher.publishEvent(new ReactionEvent(postId, userId, type));
         } else if (existing.get().getType() == type) {
-            // Bấm lại đúng loại đang có → gỡ
             reactionRepository.delete(existing.get());
             myReaction = null;
             log.info("Reaction toggled off: postId={}, userId={}, type={}", postId, userId, type);
         } else {
-            // Đang có loại khác → đổi loại
             existing.get().setType(type);
             myReaction = type;
             log.info("Reaction changed: postId={}, userId={}, newType={}", postId, userId, type);
+            eventPublisher.publishEvent(new ReactionEvent(postId, userId, type));
         }
 
         return buildSummary(postId, myReaction);
@@ -69,7 +72,6 @@ public class ReactionServiceImpl implements ReactionService {
     public ReactionSummaryResponse removeReaction(Long postId, Long userId) {
         checkPostExists(postId);
 
-        // Chưa có reaction thì bỏ qua, không báo lỗi
         reactionRepository.findByPostIdAndUserId(postId, userId).ifPresent(reaction -> {
             reactionRepository.delete(reaction);
             log.info("Reaction removed: postId={}, userId={}", postId, userId);
