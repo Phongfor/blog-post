@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 import org.example.blogpost.config.CustomUserDetails;
 import org.example.blogpost.dto.request.RefreshTokenRequest;
 import org.example.blogpost.dto.response.UserResponse;
+import org.example.blogpost.exception.AppException;
+import org.example.blogpost.exception.ErrorCode;
 import org.example.blogpost.service.AuthService;
 import org.example.blogpost.dto.request.LoginRequest;
 import org.example.blogpost.dto.request.RegisterRequest;
@@ -51,11 +53,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader,@RequestBody @Valid RefreshTokenRequest request){
+    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader,
+                                    @RequestBody @Valid RefreshTokenRequest request) {
+        if (!authHeader.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
         String accessToken = authHeader.substring(7);
         authService.logout(accessToken, request.getRefreshToken());
         return ApiResponse.<Void>builder()
-                .message("Logout successfilly")
+                .message("Logout successfully")
                 .build();
     }
 

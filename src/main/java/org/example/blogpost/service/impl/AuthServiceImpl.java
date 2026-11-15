@@ -59,29 +59,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request, String clientIp) {
-
         String email = request.getEmail();
-        loginAttemptService.checkAllowed(email,clientIp);
+        loginAttemptService.checkAllowed(email, clientIp);
 
-        // Kiểm tra email tồn tại không
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
-
-        // Kiểm tra password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            loginAttemptService.recordFailure(email,clientIp);
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            loginAttemptService.recordFailure(email, clientIp);
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        // Kiểm tra có bị kho tài khoản không
         if (!user.isEnabled()) {
             throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
+        loginAttemptService.reset(email);
         log.info("User logged in: {}", user.getEmail());
-        loginAttemptService.reset(email)
-        ;
-        // Tạo token
+
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
@@ -95,23 +88,21 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        if (!jwtUtil.isRefreshToken(refreshToken) || tokenBlacklistService.isBlacklisted(refreshToken)) {
+        if (!jwtUtil.isTokenValid(refreshToken)
+                || !jwtUtil.isRefreshToken(refreshToken)
+                || tokenBlacklistService.isBlacklisted(refreshToken)) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
         String email = jwtUtil.extractEmail(refreshToken);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         if (!user.isEnabled()) {
             throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
-        if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
-        }
-
         String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
-
         log.info("Token refreshed for user: {}", email);
 
         return AuthResponse.builder()
