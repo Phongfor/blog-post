@@ -37,16 +37,29 @@ public class CommentController {
                 .build();
     }
 
+    @GetMapping("/posts/{postId}/comments/{commentId}/replies")
+    public ApiResponse<PageResponse<CommentResponse>> getReplies(
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<CommentResponse>>builder()
+                .message("Replies retrieved successfully")
+                .result(commentService.getReplies(postId, commentId, page, size))
+                .build();
+    }
+
     @PostMapping(value = "/posts/{postId}/comments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<CommentResponse> createComment(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails principal,
+            @RequestParam(value = "parentId", required = false) Long parentId,
             @RequestParam(value = "content", required = false) String content,
             @RequestParam(value = "files", required = false) List<MultipartFile> files) {
         return ApiResponse.<CommentResponse>builder()
                 .message("Comment created successfully")
-                .result(commentService.createComment(postId, principal.getId(), content, files))
+                .result(commentService.createComment(postId, principal.getId(), parentId, content, files))
                 .build();
     }
 

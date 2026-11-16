@@ -10,7 +10,9 @@ public interface CommentService {
 
     PageResponse<CommentResponse> getComments(Long postId, int page, int size);
 
-    CommentResponse createComment(Long postId, Long currentUserId, String content, List<MultipartFile> files);
+    PageResponse<CommentResponse> getReplies(Long postId, Long commentId, int page, int size);
+
+    CommentResponse createComment(Long postId, Long currentUserId, Long parentId, String content, List<MultipartFile> files);
 
     CommentResponse updateComment(Long commentId, Long currentUserId, String content);
 
