@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.blogpost.config.CustomUserDetails;
 import org.example.blogpost.dto.response.AdminUserResponse;
 import org.example.blogpost.dto.response.ApiResponse;
+import org.example.blogpost.dto.response.PageResponse;
 import org.example.blogpost.service.AdminUserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,16 @@ import org.springframework.web.bind.annotation.*;
 public class AdminUserController {
 
     AdminUserService adminUserService;
+
+    @GetMapping
+    public ApiResponse<PageResponse<AdminUserResponse>> getUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<AdminUserResponse>>builder()
+                .result(adminUserService.searchUsers(search, page, size))
+                .build();
+    }
 
     @PutMapping("/{id}/lock")
     public ApiResponse<AdminUserResponse> lockUser(@AuthenticationPrincipal CustomUserDetails principal,
