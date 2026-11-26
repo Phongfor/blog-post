@@ -52,6 +52,8 @@ spring:
     port: ${MAIL_PORT:1025}
 
 app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   rate-limit:
     login:
       max-attemps-per-email: 5
